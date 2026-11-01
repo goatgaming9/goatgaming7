@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOAT GAMING - إدارة محل الألعاب والمنتجات</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { cairo: ['Cairo', 'sans-serif'] },
+                }
+            }
+        }
+    </script>
+    <style> body { font-family: 'Cairo', sans-serif; } </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen">
+
+    <!-- رأس الصفحة -->
+    <header class="bg-slate-800 border-b border-slate-700 py-4 px-6 sticky top-0 z-40 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-amber-500 rounded-xl flex items-center justify-center text-2xl text-slate-950 font-extrabold shadow"><i class="fa-solid fa-crown"></i></div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-white">GOAT GAMING</h1>
+                    <span class="text-xs text-amber-400 font-bold">نظام إدارة الشاشات والمبيعات الذكي</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-700/60 px-4 py-2 rounded-xl border border-slate-600 flex items-center gap-3">
+                    <div>
+                        <span class="text-xs text-slate-400 block">إجمالي الصندوق:</span>
+                        <strong id="totalRevenue" class="text-emerald-400 text-lg">0 ليرة</strong>
+                    </div>
+                    <button onclick="resetDailyRevenue()" class="text-xs bg-rose-600/20 hover:bg-rose-600 text-rose-300 hover:text-white px-2.5 py-1.5 rounded-lg transition" title="تصفير العداد"><i class="fa-solid fa-rotate-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8 space-y-8">
+        
+        <!-- قسم المبيعات العامة المنفصلة (لا علاقة لها بالشاشات) -->
+        <div class="bg-slate-800 rounded-3xl p-6 border border-amber-500/40 shadow-lg">
+            <div class="flex items-center gap-2 mb-4">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-basket-shopping"></i></div>
+                <h2 class="text-lg font-extrabold text-white">قسم المبيعات الخارجية العامة (بسكوت، بطاطا، براد)</h2>
+            </div>
+            <p class="text-xs text-slate-400 mb-4">هذا القسم خاص ببيع المنتجات للزبائن بشكل مباشر دون ربطها بأي شاشة.</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4 items-end bg-slate-900/60 p-4 rounded-2xl border border-slate-700">
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">بسكوت (الكمية / السعر):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="genBiscuitQty" min="0" value="0" placeholder="العدد" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                        <input type="number" id="genBiscuitPrice" min="0" value="0" placeholder="السعر الكلي" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">بطاطا (الكمية / السعر):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="genChipsQty" min="0" value="0" placeholder="العدد" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                        <input type="number" id="genChipsPrice" min="0" value="0" placeholder="السعر الكلي" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-300 block mb-1">براد (الكمية / السعر):</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="genBaradQty" min="0" value="0" placeholder="العدد" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                        <input type="number" id="genBaradPrice" min="0" value="0" placeholder="السعر الكلي" class="bg-slate-800 text-white border border-slate-600 rounded-lg p-2 text-xs text-center font-bold">
+                    </div>
+                </div>
+                <div>
+                    <button onclick="checkoutGeneralSales()" class="w-full bg-amber-600 hover:bg-amber-500 text-slate-950 font-extrabold py-2.5 rounded-xl shadow transition text-xs flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i> تثبيت مبيعات المنتجات وإضافتها للصندوق
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- تسعيرة الشاشات بالساعة -->
+        <div class="bg-slate-800/80 rounded-2xl p-6 border border-slate-700 shadow-sm">
+            <h2 class="text-base font-bold mb-3 flex items-center gap-2 text-blue-400"><i class="fa-solid fa-tags"></i> أسعار الساعة للشاشات حسب عدد اللاعبين</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 flex justify-between"><span>فردي (لاعب):</span> <strong class="text-white">40 ل/س</strong></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 flex justify-between"><span>ثنائي (لاعبين):</span> <strong class="text-white">60 ل/س</strong></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 flex justify-between"><span>ثلاثي (3 لاعبين):</span> <strong class="text-white">80 ل/س</strong></div>
+                <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700 flex justify-between"><span>رباعي (4 لاعبين):</span> <strong class="text-white">100 ل/س</strong></div>
+            </div>
+        </div>
+
+        <!-- الشاشات الأربع -->
+        <div>
+            <h2 class="text-2xl font-extrabold mb-6 flex items-center gap-2"><i class="fa-solid fa-desktop text-emerald-400"></i> واجهة الشاشات والمبيعات الخاصة بها</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="screensContainer"></div>
+        </div>
+
+        <!-- لوحة ملخص عام لكل شاشة في الأسفل -->
+        <div class="bg-slate-800/90 rounded-3xl p-6 border border-slate-700 shadow-lg">
+            <h2 class="text-xl font-extrabold mb-5 flex items-center gap-2 text-blue-400">
+                <i class="fa-solid fa-chart-pie"></i> لوحة ملخص إحصائيات الشاشات
+            </h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="screensSummaryContainer"></div>
+        </div>
+
+        <!-- نافذة سجل الحركات التفصيلية -->
+        <div class="bg-slate-800/95 rounded-3xl p-6 border border-slate-700 shadow-xl">
+            <div class="flex justify-between items-center mb-5 border-b border-slate-700 pb-4">
+                <h2 class="text-xl font-extrabold flex items-center gap-2 text-amber-400">
+                    <i class="fa-solid fa-list-check"></i> سجل حركات وتفاصيل العمليات (الشاشات والمبيعات العامة)
+                </h2>
+                <span class="text-xs bg-slate-700 text-slate-300 px-3 py-1 rounded-lg font-bold" id="totalLogsCount">عدد الحركات: 0</span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-right border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-900/70 border-b border-slate-700 text-slate-400 text-xs font-bold uppercase">
+                            <th class="py-3 px-3">القسم / الشاشة</th>
+                            <th class="py-3 px-3">الوقت / الفترة</th>
+                            <th class="py-3 px-3">النوع / الوضع</th>
+                            <th class="py-3 px-3">ساعات العمل</th>
+                            <th class="py-3 px-3">تفاصيل المبيعات (بسكوت/بطاطا/براد)</th>
+                            <th class="py-3 px-3">الملاحظات</th>
+                            <th class="py-3 px-3">المبلغ الإجمالي</th>
+                            <th class="py-3 px-3 text-center">وقت التنفيذ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="activityLogsTableBody" class="divide-y divide-slate-700/50 text-xs">
+                        <tr><td colspan="8" class="py-6 text-center text-slate-500">لا توجد حركات مسجلة حتى الآن اليوم.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        const hourlyPrices = { 1: 40, 2: 60, 3: 80, 4: 100 };
+        const playerLabels = { 1: "فردي (لاعب)", 2: "ثنائي (لاعبين)", 3: "ثلاثي (3 لاعبين)", 4: "رباعي (4 لاعبين)" };
+
+        let totalRevenueVal = 0;
+
+        let screens = [
+            { id: 1, name: "الشاشة رقم 1", players: 2, startTime: "", endTime: "", biscuitQty: 0, chipsQty: 0, baradQty: 0, manualProductsPrice: 0, customDetails: "", revenue: 0, sessionsCount: 0, totalHours: 0, totalBiscuit: 0, totalChips: 0, totalBarad: 0 },
+            { id: 2, name: "الشاشة رقم 2", players: 1, startTime: "", endTime: "", biscuitQty: 0, chipsQty: 0, baradQty: 0, manualProductsPrice: 0, customDetails: "", revenue: 0, sessionsCount: 0, totalHours: 0, totalBiscuit: 0, totalChips: 0, totalBarad: 0 },
+            { id: 3, name: "الشاشة رقم 3", players: 1, startTime: "", endTime: "", biscuitQty: 0, chipsQty: 0, baradQty: 0, manualProductsPrice: 0, customDetails: "", revenue: 0, sessionsCount: 0, totalHours: 0, totalBiscuit: 0, totalChips: 0, totalBarad: 0 },
+            { id: 4, name: "الشاشة رقم 4", players: 1, startTime: "", endTime: "", biscuitQty: 0, chipsQty: 0, baradQty: 0, manualProductsPrice: 0, customDetails: "", revenue: 0, sessionsCount: 0, totalHours: 0, totalBiscuit: 0, totalChips: 0, totalBarad: 0 }
+        ];
+
+        let activityLogs = [];
+
+        function renderScreens() {
+            const container = document.getElementById('screensContainer');
+            const summaryContainer = document.getElementById('screensSummaryContainer');
+            container.innerHTML = '';
+            summaryContainer.innerHTML = '';
+
+            screens.forEach(s => {
+                let screenCost = 0;
+                let hoursCalc = 0;
+                let durationText = "اختر أوقات صحيحة";
+
+                if (s.startTime && s.endTime) {
+                    const [startH, startM] = s.startTime.split(':').map(Number);
+                    const [endH, endM] = s.endTime.split(':').map(Number);
+                    
+                    let startTotalMins = startH * 60 + startM;
+                    let endTotalMins = endH * 60 + endM;
+                    
+                    if (endTotalMins < startTotalMins) endTotalMins += 24 * 60;
+
+                    const diffMins = endTotalMins - startTotalMins;
+                    if (diffMins > 0) {
+                        hoursCalc = diffMins / 60;
+                        const rate = hourlyPrices[s.players];
+                        screenCost = Math.round(hoursCalc * rate);
+
+                        const hrsNum = Math.floor(diffMins / 60);
+                        const minsNum = diffMins % 60;
+                        durationText = `${hrsNum > 0 ? hrsNum + ' ساعة ' : ''}${minsNum > 0 ? minsNum + ' دقيقة' : (hrsNum === 0 ? '0 دقيقة' : '')}`;
+                    }
+                }
+
+                const productsPrice = s.manualProductsPrice || 0;
+                const totalSessionCost = screenCost + productsPrice;
+
+                // بطاقة الشاشة
+                const card = document.createElement('div');
+                card.className = "bg-slate-800 rounded-3xl p-6 border border-slate-700 shadow-sm space-y-4";
+                card.innerHTML = `
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-600 text-white font-extrabold flex items-center justify-center text-lg">${s.id}</div>
+                            <div>
+                                <h3 class="font-extrabold text-lg text-white">${s.name}</h3>
+                                <span class="text-xs text-blue-400 font-bold">ساعة: ${hourlyPrices[s.players]} ليرة</span>
+                            </div>
+                        </div>
+                        <div class="text-left">
+                            <span class="text-xs text-slate-400 block">الإجمالي الكلي:</span>
+                            <strong class="text-emerald-400 text-xl">${totalSessionCost} ليرة</strong>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block mb-1">الوضع (اللاعبين):</span>
+                            <select onchange="updateScreenData(${s.id}, 'players', this.value)" class="w-full bg-slate-800 text-white border border-slate-600 rounded-lg p-1.5 text-xs font-bold outline-none">
+                                <option value="1" ${s.players==1?'selected':''}>فردي (40ل)</option>
+                                <option value="2" ${s.players==2?'selected':''}>ثنائي (60ل)</option>
+                                <option value="3" ${s.players==3?'selected':''}>ثلاثي (80ل)</option>
+                                <option value="4" ${s.players==4?'selected':''}>رباعي (100ل)</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block mb-1">وقت البدء:</span>
+                            <input type="time" value="${s.startTime}" onchange="updateScreenData(${s.id}, 'startTime', this.value)" class="w-full bg-slate-800 text-white border border-slate-600 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                        <div class="bg-slate-900/50 p-2.5 rounded-xl border border-slate-700/60">
+                            <span class="text-xs text-slate-400 block mb-1">وقت النهاية:</span>
+                            <input type="time" value="${s.endTime}" onchange="updateScreenData(${s.id}, 'endTime', this.value)" class="w-full bg-slate-800 text-white border border-slate-600 rounded-lg p-1.5 text-xs outline-none">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/40 p-3 rounded-xl border border-slate-700/60 space-y-2">
+                        <span class="text-xs text-amber-400 font-bold block"><i class="fa-solid fa-cookie-bite"></i> مبيعات الشاشة:</span>
+                        <div class="grid grid-cols-3 gap-2 text-xs">
+                            <div><input type="number" min="0" value="${s.biscuitQty}" placeholder="بسكوت" onchange="updateScreenData(${s.id}, 'biscuitQty', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-1 text-center text-white"></div>
+                            <div><input type="number" min="0" value="${s.chipsQty}" placeholder="بطاطا" onchange="updateScreenData(${s.id}, 'chipsQty', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-1 text-center text-white"></div>
+                            <div><input type="number" min="0" value="${s.baradQty}" placeholder="براد" onchange="updateScreenData(${s.id}, 'baradQty', this.value)" class="w-full bg-slate-800 border border-slate-600 rounded p-1 text-center text-white"></div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <input type="text" value="${s.customDetails}" placeholder="ملاحظات..." onchange="updateScreenData(${s.id}, 'customDetails', this.value)" class="w-full bg-slate-900/60 text-white border border-slate-600 rounded-lg p-2 text-xs outline-none">
+                        </div>
+                        <div>
+                            <input type="number" min="0" value="${s.manualProductsPrice}" placeholder="سعر المبيعات يدوياً..." onchange="updateScreenData(${s.id}, 'manualProductsPrice', this.value)" class="w-full bg-amber-950/30 text-amber-300 border border-amber-500/60 rounded-lg p-2 text-sm font-extrabold outline-none text-center">
+                        </div>
+                    </div>
+
+                    <button onclick="checkoutScreen(${s.id}, ${totalSessionCost}, ${hoursCalc})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl shadow transition text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-cash-register"></i> تثبيت وإضافة المبلغ للصندوق (${totalSessionCost} ليرة)
+                    </button>
+                `;
+                container.appendChild(card);
+
+                // بطاقة الملخص
+                const summaryCard = document.createElement('div');
+                summaryCard.className = "bg-slate-900/70 rounded-2xl p-4 border border-slate-700/80 flex flex-col justify-between";
+                summaryCard.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-3">
+                            <span class="font-extrabold text-white text-base">${s.name}</span>
+                            <span class="text-xs bg-blue-500/20 text-blue-300 px-2.5 py-0.5 rounded-md font-bold">${s.sessionsCount} جلسات</span>
+                        </div>
+                        <div class="space-y-1.5 text-xs text-slate-300">
+                            <div class="flex justify-between"><span>إجمالي الأرباح:</span> <strong class="text-emerald-400 text-sm">${s.revenue} ليرة</strong></div>
+                            <div class="flex justify-between"><span>ساعات العمل:</span> <strong class="text-amber-400 text-sm">${s.totalHours.toFixed(1)} ساعة</strong></div>
+                            <div class="flex justify-between"><span>المبيعات (بسكوت/بطاطا/براد):</span> <strong class="text-blue-300 text-xs">${s.totalBiscuit}/${s.totalChips}/${s.totalBarad}</strong></div>
+                        </div>
+                    </div>
+                `;
+                summaryContainer.appendChild(summaryCard);
+            });
+            updateTotalRevenue();
+            renderActivityLogs();
+        }
+
+        function updateScreenData(id, field, value) {
+            const screen = screens.find(s => s.id === id);
+            if (screen) {
+                if (['players', 'biscuitQty', 'chipsQty', 'baradQty', 'manualProductsPrice'].includes(field)) {
+                    screen[field] = parseFloat(value) || 0;
+                } else {
+                    screen[field] = value;
+                }
+                renderScreens();
+            }
+        }
+
+        function checkoutScreen(id, totalCost, hoursCalc) {
+            const screen = screens.find(s => s.id === id);
+            if (screen) {
+                if (totalCost <= 0) {
+                    alert("الرجاء تحديد أوقات أو سعر مبيعات صحيح!");
+                    return;
+                }
+
+                const logEntry = {
+                    screenName: screen.name,
+                    timeRange: (screen.startTime && screen.endTime) ? `${screen.startTime} إلى ${screen.endTime}` : "بدون أوقات محددة",
+                    playerMode: playerLabels[screen.players],
+                    hours: hoursCalc > 0 ? hoursCalc.toFixed(2) + " ساعة" : "0 ساعة",
+                    productsInfo: `بسكوت: ${screen.biscuitQty} | بطاطا: ${screen.chipsQty} | براد: ${screen.baradQty} (مبيعات: ${screen.manualProductsPrice}ل)`,
+                    details: screen.customDetails || "لا توجد ملاحظات",
+                    total: totalCost,
+                    timestamp: new Date().toLocaleTimeString('ar-SY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+                };
+                activityLogs.unshift(logEntry);
+
+                screen.revenue += totalCost;
+                screen.sessionsCount += 1;
+                screen.totalHours += hoursCalc;
+                screen.totalBiscuit += screen.biscuitQty;
+                screen.totalChips += screen.chipsQty;
+                screen.totalBarad += screen.baradQty;
+
+                // تصفير حقول الجلسة
+                screen.startTime = "";
+                screen.endTime = "";
+                screen.biscuitQty = 0;
+                screen.chipsQty = 0;
+                screen.baradQty = 0;
+                screen.manualProductsPrice = 0;
+                screen.customDetails = "";
+                
+                renderScreens();
+                alert(`تم تثبيت الحساب للشاشة (${screen.name}) بنجاح.`);
+            }
+        }
+
+        // دالة لتسجيل المبيعات الخارجية العامة المستقلة عن الشاشات
+        function checkoutGeneralSales() {
+            const bQty = parseFloat(document.getElementById('genBiscuitQty').value) || 0;
+            const bPrice = parseFloat(document.getElementById('genBiscuitPrice').value) || 0;
+
+            const cQty = parseFloat(document.getElementById('genChipsQty').value) || 0;
+            const cPrice = parseFloat(document.getElementById('genChipsPrice').value) || 0;
+
+            const barQty = parseFloat(document.getElementById('genBaradQty').value) || 0;
+            const barPrice = parseFloat(document.getElementById('genBaradPrice').value) || 0;
+
+            const totalGeneralCost = bPrice + cPrice + barPrice;
+
+            if (totalGeneralCost <= 0) {
+                alert("الرجاء إدخال الكميات والأسعار للمنتجات أولاً!");
+                return;
+            }
+
+            const logEntry = {
+                screenName: "🛒 مبيعات خارجية عامة",
+                timeRange: "عملية فورية",
+                playerMode: "منتجات فقط",
+                hours: "-",
+                productsInfo: `بسكوت: ${bQty} (${bPrice}ل) | بطاطا: ${cQty} (${cPrice}ل) | براد: ${barQty} (${barPrice}ل)`,
+                details: "مبيعات محل مباشرة",
+                total: totalGeneralCost,
+                timestamp: new Date().toLocaleTimeString('ar-SY', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+            };
+            activityLogs.unshift(logEntry);
+
+            // إضافة الإجمالي إلى إيرادات الصندوق الوهمية عبر تخزينها في متغير عام
+            window.generalSalesTotal = (window.generalSalesTotal || 0) + totalGeneralCost;
+
+            // إعادة تعيين الحقول العامة
+            document.getElementById('genBiscuitQty').value = 0;
+            document.getElementById('genBiscuitPrice').value = 0;
+            document.getElementById('genChipsQty').value = 0;
+            document.getElementById('genChipsPrice').value = 0;
+            document.getElementById('genBaradQty').value = 0;
+            document.getElementById('genBaradPrice').value = 0;
+
+            renderScreens();
+            alert(`تم تسجيل وإضافة مبيعات المنتجات بقيمة (${totalGeneralCost} ليرة) إلى الصندوق بنجاح.`);
+        }
+
+        function renderActivityLogs() {
+            const tbody = document.getElementById('activityLogsTableBody');
+            const countBadge = document.getElementById('totalLogsCount');
+            tbody.innerHTML = '';
+            countBadge.innerText = `عدد الحركات: ${activityLogs.length}`;
+
+            if (activityLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-500">لا توجد حركات مسجلة حتى الآن اليوم.</td></tr>`;
+                return;
+            }
+
+            activityLogs.forEach((log) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-900/40 transition";
+                tr.innerHTML = `
+                    <td class="py-3 px-3 font-bold ${log.screenName.includes('مبيعات') ? 'text-amber-400' : 'text-white'}">${log.screenName}</td>
+                    <td class="py-3 px-3 text-amber-300 font-mono">${log.timeRange}</td>
+                    <td class="py-3 px-3 text-blue-300 font-bold">${log.playerMode}</td>
+                    <td class="py-3 px-3 text-emerald-300 font-mono font-bold">${log.hours}</td>
+                    <td class="py-3 px-3 text-slate-300">${log.productsInfo}</td>
+                    <td class="py-3 px-3 text-slate-300">${log.details}</td>
+                    <td class="py-3 px-3 text-emerald-400 font-extrabold text-sm">${log.total} ليرة</td>
+                    <td class="py-3 px-3 text-center text-slate-400 font-mono text-xs">${log.timestamp}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateTotalRevenue() {
+            const screensTotal = screens.reduce((sum, s) => sum + s.revenue, 0);
+            const generalTotal = window.generalSalesTotal || 0;
+            const total = screensTotal + generalTotal;
+            document.getElementById('totalRevenue').innerText = total + " ليرة";
+        }
+
+        function resetDailyRevenue() {
+            if (confirm("هل تريد تصفير الصندوق وإحصائيات الشاشات ومسح السجل بالكامل؟")) {
+                screens.forEach(s => { 
+                    s.revenue = 0; s.sessionsCount = 0; s.totalHours = 0; 
+                    s.totalBiscuit = 0; s.totalChips = 0; s.totalBarad = 0; 
+                });
+                window.generalSalesTotal = 0;
+                activityLogs = [];
+                renderScreens();
+            }
+        }
+
+        renderScreens();
+    </script>
+</body>
+</html>
